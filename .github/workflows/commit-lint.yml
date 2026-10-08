@@ -43,6 +43,11 @@ jobs:
   commits:
     name: Validate commit messages
     runs-on: ubuntu-latest
+    env:
+      # Fecha de adopción del estándar en este repo (ISO 8601).
+      # Commits anteriores a esta fecha NO se validan (grace period para historia legacy).
+      # Ajusta aquí si cambias de política.
+      COMMIT_LINT_SINCE: "2026-10-08"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -59,9 +64,20 @@ jobs:
 
           PATTERN='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-zA-Z0-9_./-]+\))?!?: .{1,}$'
           FAIL=0
+          SKIPPED=0
+
+          # SHAs anteriores a COMMIT_LINT_SINCE (grace period)
+          SKIP_SHAS=$(git log --before="$COMMIT_LINT_SINCE" --format=%H 2>/dev/null | sort -u)
 
           while IFS= read -r sha; do
             [ -z "$sha" ] && continue
+
+            # Grace: si el commit es anterior a la fecha de adopción, saltar
+            if echo "$SKIP_SHAS" | grep -q "^$sha$"; then
+              SKIPPED=$((SKIPPED+1))
+              continue
+            fi
+
             msg=$(git log -1 --format=%s "$sha")
             # permitir merge/revert/fixup
             case "$msg" in
@@ -74,6 +90,9 @@ jobs:
             fi
           done < <(git rev-list "$RANGE" 2>/dev/null || git rev-list HEAD -n 20)
 
+          echo ""
+          [ "$SKIPPED" -gt 0 ] && echo "ℹ️  $SKIPPED commit(s) ignorados por grace period (antes de $COMMIT_LINT_SINCE)"
+
           if [ "$FAIL" -eq 1 ]; then
             echo ""
             echo "Formato: <type>[(scope)][!]: <descripción>"
@@ -81,4 +100,4 @@ jobs:
             echo "Más info: https://www.conventionalcommits.org/"
             exit 1
           fi
-          echo "✅ Todos los commits cumplen Conventional Commits"
+          echo "✅ Todos los commits (post-adopción) cumplen Conventional Commits"
