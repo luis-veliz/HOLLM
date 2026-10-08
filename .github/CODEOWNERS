@@ -1,0 +1,19 @@
+# CODEOWNERS - revisores por defecto
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-security/customizing-your-repository/about-code-owners
+#
+# Reemplaza @owner por el usuario/equipo real.
+# El primer patrón que matchea gana — ordena del más general al más específico.
+
+# Fallback: dueño de todo
+*       @luis-veliz
+
+# Infra / CI / contribuciones críticas
+/.github/           @luis-veliz
+/lefthook.yml       @luis-veliz
+/.lefthook/         @luis-veliz
+
+# Ejemplos por carpeta — descomenta y ajusta por repo
+# /src/api/          @team-backend
+# /src/web/          @team-frontend
+# /migrations/       @team-backend @team-dba
+# /infra/            @team-devops

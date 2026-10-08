@@ -1,0 +1,46 @@
+name: ✨ Feature request
+description: Proponer una funcionalidad nueva
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema o necesidad que resuelve
+      description: ¿Por qué necesitamos esto? ¿Qué pasa hoy sin ello?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solución propuesta
+      description: Qué debería hacer la feature. Si tienes UI, incluye mockup o descripción
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+      placeholder: "Opción A: ...  (descartada porque ...)"
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioridad propuesta
+      options:
+        - P0 (urgente, bloquea un objetivo)
+        - P1 (importante, próximo sprint)
+        - P2 (deseable, backlog)
+        - P3 (nice to have)
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Criterios de aceptación
+      value: |
+        - [ ]
+        - [ ]

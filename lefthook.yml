@@ -1,0 +1,90 @@
+# Lefthook - git hooks estándar para repos luis-veliz / iterasa / ohcelan
+# NOTA: este archivo se llama lefthook.config.yml por restricción del empaquetado.
+# El script apply_to_repos.sh lo copia al repo destino como `lefthook.yml`.
+#
+# Instalación por repo (una vez):
+#   brew install lefthook   # si no lo tienes
+#   lefthook install
+#
+# Bypassear en emergencia (usa muy rara vez):
+#   git commit --no-verify
+#   LEFTHOOK=0 git commit ...
+#
+# Docs: https://lefthook.dev
+
+min_version: 1.7.0
+
+# -----------------------------------------------------------------------------
+# commit-msg: valida formato Conventional Commits (bash puro, cero deps)
+# -----------------------------------------------------------------------------
+commit-msg:
+  commands:
+    conventional-commits:
+      run: bash .lefthook/validate-commit-msg.sh {1}
+
+# -----------------------------------------------------------------------------
+# pre-commit: calidad y seguridad
+# -----------------------------------------------------------------------------
+pre-commit:
+  parallel: true
+  commands:
+    # 1. gitleaks: bloquea secretos
+    gitleaks:
+      run: |
+        if command -v gitleaks >/dev/null 2>&1; then
+          gitleaks protect --staged --redact --no-banner
+        else
+          echo "⚠️  gitleaks no instalado. 'brew install gitleaks'. Continuando..."
+        fi
+      skip:
+        - merge
+        - rebase
+
+    # 2. Formatter / linter específico del repo (descomenta el que aplique)
+    # ---- .NET ----
+    # dotnet-format:
+    #   glob: "*.{cs,csproj}"
+    #   run: dotnet format --include {staged_files} --verify-no-changes
+    #   stage_fixed: true
+
+    # ---- Node / TS ----
+    # prettier:
+    #   glob: "*.{js,ts,jsx,tsx,json,md,yml,yaml,css}"
+    #   run: npx --no -- prettier --write {staged_files}
+    #   stage_fixed: true
+    # eslint:
+    #   glob: "*.{js,ts,jsx,tsx}"
+    #   run: npx --no -- eslint --fix {staged_files}
+    #   stage_fixed: true
+
+    # ---- Flutter / Dart ----
+    # dart-format:
+    #   glob: "*.dart"
+    #   run: dart format {staged_files}
+    #   stage_fixed: true
+    # dart-analyze:
+    #   glob: "*.dart"
+    #   run: dart analyze {staged_files}
+
+    # ---- Python ----
+    # ruff:
+    #   glob: "*.py"
+    #   run: ruff check --fix {staged_files}
+    #   stage_fixed: true
+    # ruff-format:
+    #   glob: "*.py"
+    #   run: ruff format {staged_files}
+    #   stage_fixed: true
+
+# -----------------------------------------------------------------------------
+# pre-push: validaciones más caras antes de subir
+# -----------------------------------------------------------------------------
+pre-push:
+  commands:
+    no-direct-push-main:
+      run: |
+        branch=$(git rev-parse --abbrev-ref HEAD)
+        if [ "$branch" = "main" ] || [ "$branch" = "master" ]; then
+          echo "❌ Push directo a '$branch' bloqueado. Abre un PR."
+          exit 1
+        fi

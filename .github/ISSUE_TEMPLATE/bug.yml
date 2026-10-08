@@ -1,0 +1,66 @@
+name: 🐛 Bug report
+description: Reportar un error reproducible
+title: "fix: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por reportar. Mientras más contexto des, más rápido lo arreglamos.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: Qué pasó
+      description: Comportamiento actual vs. comportamiento esperado
+      placeholder: |
+        Actual: al enviar el formulario, muestra "undefined"
+        Esperado: debería mostrar un mensaje de éxito
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Pasos para reproducir
+      value: |
+        1. Ir a '...'
+        2. Hacer click en '...'
+        3. Ver error
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Versión / commit / entorno
+      placeholder: "v1.2.3 (prod) · commit abc1234 · staging · local"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severidad
+      options:
+        - 🔴 Crítica (bloquea producción)
+        - 🟡 Alta (feature principal roto, hay workaround)
+        - 🟢 Media (feature secundario)
+        - 🔵 Baja (cosmético, inconveniente menor)
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots / stack trace
+      render: shell
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-flight
+      options:
+        - label: Busqué si ya existía issue abierto
+          required: true
+        - label: Puedo reproducirlo consistentemente

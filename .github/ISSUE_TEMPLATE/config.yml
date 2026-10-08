@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔐 Vulnerabilidad de seguridad
+    url: https://github.com/security/advisories/new
+    about: Reporta vulnerabilidades EN PRIVADO vía security advisories. NO abras un issue público.
+  - name: 💬 Pregunta o duda general
+    url: https://github.com/discussions
+    about: Para preguntas o discusión usa Discussions, no un issue.

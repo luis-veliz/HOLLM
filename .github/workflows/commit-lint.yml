@@ -1,0 +1,84 @@
+name: Commit Lint
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches-ignore:
+      - main
+      - master
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  pr-title:
+    name: Validate PR title (Conventional Commits)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          requireScope: false
+          subjectPattern: ^[a-z0-9].+$
+          subjectPatternError: |
+            La descripción debe empezar en minúscula y no estar vacía.
+            Ejemplo: feat(auth): add refresh-token rotation
+
+  commits:
+    name: Validate commit messages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate each commit in branch
+        run: |
+          set -e
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            RANGE="origin/${{ github.base_ref }}..HEAD"
+          else
+            RANGE="origin/main..HEAD"
+          fi
+
+          PATTERN='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-zA-Z0-9_./-]+\))?!?: .{1,}$'
+          FAIL=0
+
+          while IFS= read -r sha; do
+            [ -z "$sha" ] && continue
+            msg=$(git log -1 --format=%s "$sha")
+            # permitir merge/revert/fixup
+            case "$msg" in
+              Merge*|Revert*|"fixup!"*|"squash!"*|"amend!"*) continue ;;
+            esac
+            if ! echo "$msg" | grep -Eq "$PATTERN"; then
+              echo "::error::Commit $sha no cumple Conventional Commits:"
+              echo "::error::  $msg"
+              FAIL=1
+            fi
+          done < <(git rev-list "$RANGE" 2>/dev/null || git rev-list HEAD -n 20)
+
+          if [ "$FAIL" -eq 1 ]; then
+            echo ""
+            echo "Formato: <type>[(scope)][!]: <descripción>"
+            echo "Tipos: feat fix docs style refactor perf test build ci chore revert"
+            echo "Más info: https://www.conventionalcommits.org/"
+            exit 1
+          fi
+          echo "✅ Todos los commits cumplen Conventional Commits"
