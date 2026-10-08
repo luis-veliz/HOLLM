@@ -1,0 +1,32 @@
+name: 📋 Tarea técnica
+description: Refactor, mejora interna, deuda técnica, chore
+title: "chore: "
+labels: ["task"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Qué hay que hacer
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Por qué (contexto, beneficio)
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Alcance / archivos tocados
+      placeholder: "src/auth/*, scripts/migrate.sh"
+
+  - type: textarea
+    id: done
+    attributes:
+      label: Definición de hecho
+      value: |
+        - [ ]
+        - [ ]
